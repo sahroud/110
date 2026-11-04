@@ -84,7 +84,7 @@ footer{text-align:center;color:#71848c;font-size:11px;padding:15px 0 25px}
 <div class="tablewrap">
 <table>
 <thead><tr><th>از نقطه</th><th>به نقطه</th><th>فاصله افقی (۲D)</th><th>اختلاف ارتفاع</th><th>فاصله مستقیم (۳D)</th><th>عملیات</th></tr></thead>
-<tbody id="distTable"><tr><td colspan="5">هنوز فاصله‌ای محاسبه نشده است.</td></tr></tbody>
+<tbody id="distTable"><tr><td colspan="6">هنوز فاصله‌ای محاسبه نشده است.</td></tr></tbody>
 </table>
 </div>
 </section>
@@ -318,8 +318,7 @@ function downloadFile(name,content,type){
 function exportCSV(){
  const rows=[["id","name","latitude","longitude","altitude_m","gps_accuracy_m","time","note","rtk_status"],
  ...points.map(p=>[p.id,p.name,p.lat,p.lon,p.alt??"",p.accuracy??"",p.time,p.note,"NOT_VERIFIED"])];
- downloadFile("SurveyRTK.csv","﻿"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("
-"),"text/csv;charset=utf-8");
+ downloadFile("SurveyRTK.csv","\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n"),"text/csv;charset=utf-8");
 }
 
 function exportGeoJSON(){
@@ -334,33 +333,12 @@ function exportKML(){
 }
 
 function exportTXT(){
- let s = "=== لیست نقاط ثبت شده ===
-
-";
- s += points.map(p=>`شماره نقطه: ${p.id}
-نام: ${p.name||""}
-عرض: ${p.lat}
-طول: ${p.lon}
-ارتفاع GPS: ${p.alt??"ناموجود"}
-دقت گزارش‌شده: ${p.accuracy??"ناموجود"} متر
-RTK: تأییدنشده
-زمان: ${p.time}
-یادداشت: ${p.note||""}
--------------------------`).join("
-");
+ let s = "=== لیست نقاط ثبت شده ===\n\n";
+ s += points.map(p=>`شماره نقطه: ${p.id}\nنام: ${p.name||""}\nعرض: ${p.lat}\nطول: ${p.lon}\nارتفاع GPS: ${p.alt??"ناموجود"}\nدقت گزارش‌شده: ${p.accuracy??"ناموجود"} متر\nRTK: تأییدنشده\nزمان: ${p.time}\nیادداشت: ${p.note||""}\n-------------------------`).join("\n");
  
  if(calculatedDistances.length){
-   s += "
-
-=== فواصل محاسبه شده ===
-
-";
-   s += calculatedDistances.map(d=>`از: نقطه ${d.p1Id} (${d.p1Name}) -> به: نقطه ${d.p2Id} (${d.p2Name})
-فاصله افقی (2D): ${d.dist2D.toFixed(2)} متر
-اختلاف ارتفاع: ${d.diffAlt!==null?d.diffAlt.toFixed(2)+" متر":"ناموجود"}
-فاصله مستقیم (3D): ${d.dist3D!==null?d.dist3D.toFixed(2)+" متر":"ناموجود"}
--------------------------`).join("
-");
+   s += "\n\n=== فواصل محاسبه شده ===\n\n";
+   s += calculatedDistances.map(d=>`از: نقطه ${d.p1Id} (${d.p1Name}) -> به: نقطه ${d.p2Id} (${d.p2Name})\nفاصله افقی (2D): ${d.dist2D.toFixed(2)} متر\nاختلاف ارتفاع: ${d.diffAlt!==null?d.diffAlt.toFixed(2)+" متر":"ناموجود"}\nفاصله مستقیم (3D): ${d.dist3D!==null?d.dist3D.toFixed(2)+" متر":"ناموجود"}\n-------------------------`).join("\n");
  }
  downloadFile("SurveyRTK.txt",s,"text/plain;charset=utf-8");
 }
